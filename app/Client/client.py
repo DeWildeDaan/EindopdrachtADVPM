@@ -2,12 +2,15 @@ from msilib.schema import ListBox
 import sys
 from pathlib import Path
 from tabnanny import check
+from urllib import response
 sys.path[0] = str(Path(sys.path[0]).parent)
 # https://pythonprogramming.net/python-3-tkinter-basics-tutorial/
 import logging
 import socket
 import pickle
 import tkinter as tk
+from PIL import ImageTk, Image
+import PIL.Image
 from tkinter import WORD
 from tkinter import *
 from tkinter import messagebox
@@ -243,6 +246,9 @@ class Window(Frame):
         Label(self, text="Country:", pady=10).grid(row=0)
         Label(self, text="Result:", pady=10).grid(row=2)
 
+        self.lblimg = Label(self)
+        self.lblimg.grid(row=4, column=0, columnspan=2, pady=(0, 5), padx=(5, 5), sticky=N + S + E + W)
+
         # Entry's
         self.entry_country = Entry(self, width=40)
         self.entry_country.grid(row=0, column=1, sticky=E + W, padx=(5, 5))
@@ -252,10 +258,10 @@ class Window(Frame):
 
         # Buttons
         self.buttonSearch = Button(self, text="Search", command=lambda:self.graph())
-        self.buttonSearch.grid(row=4, column=1,pady=(0, 10), padx=(5, 5), sticky=E + W + S)
+        self.buttonSearch.grid(row=5, column=1,pady=(0, 10), padx=(5, 5), sticky=E + W + S)
 
         self.buttonBack = Button(self, text="Back", command=lambda:self.command_window())
-        self.buttonBack.grid(row=4, column=0,pady=(0, 10), padx=(5, 5), sticky=E + W + S)
+        self.buttonBack.grid(row=5, column=0,pady=(0, 10), padx=(5, 5), sticky=E + W + S)
 
 
 
@@ -378,9 +384,25 @@ class Window(Frame):
 
             # resultaat afwachten
             response = pickle.load(self.in_out_server)
-            logging.info('Got a response from server')
-            logging.debug(response)
-            self.label_result['text'] = f"{response}"
+            number_of_sends = int(response)
+
+            with open('received_file', 'wb+') as f:
+                for i in range(0, number_of_sends):
+                    data = self.socket_to_server.recv(1024)
+                    f.write(data)
+
+            logging.info('Successfully got the image')
+
+            # showing image
+            fp = open("received_file","rb")
+            # img = PIL.Image.open(fp)
+            # img.show()
+            im = PIL.Image.open(fp)
+            self.img = ImageTk.PhotoImage(PIL.Image.open(fp))
+            self.lblimg['image'] = self.img
+            #change size window
+            width, height = im.size
+            self.master.geometry("%dx%d" %(width, height+200))
 
         except Exception as ex:
             logging.error(f"Foutmelding: {ex}")

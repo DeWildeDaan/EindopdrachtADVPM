@@ -1,3 +1,4 @@
+from itertools import count
 import sys
 import os
 from pathlib import Path
@@ -22,6 +23,7 @@ class Dataset:
 
     def __init__(self):
         #pass
+        #print(f'path; {sys.path[0]}')
         self.dataset = pd.read_csv('tripadvisor_european_restaurants.csv')
         self.dataset = self.dataset.applymap(lambda s:s.lower() if type(s) == str else s)
     
@@ -70,13 +72,18 @@ class Dataset:
     def return_graph(self, user, country):
         Dataset.graph_command+=1
         self.log_command(user, f"{user.name} ({user.nickname}) generated a graph on the country {country}.\n")
-        return f"graph {country.lower()}"
+        df = self.dataset[self.dataset['country'].str.contains(country.lower())]
+        plt.figure(figsize=(10,5))
+        plt.grid()
+        plt.xticks(rotation=90)
+        sns.countplot(data=df, x=df['province']).set(title=f'Restaurants from {country} per province')
+        plt.savefig('c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/Server/images/graph.png', bbox_inches='tight')
 
     def log_command(self, user, command):
         filename = f"{user.name}-{user.nickname}-{user.email}.txt"
-        directory = '/app/logs/'
+        directory = 'c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/logs/'
         location = os.path.join(directory, filename)
         print(location)
-        f = open(location, "w")
+        f = open(location, "a")
         f.write(command)
         f.close()

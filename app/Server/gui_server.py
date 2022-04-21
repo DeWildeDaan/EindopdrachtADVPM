@@ -1,5 +1,6 @@
 # https://pythonprogramming.net/python-3-tkinter-basics-tutorial/
 import imp
+import os
 import logging
 import socket
 from queue import Queue
@@ -101,7 +102,7 @@ class ServerWindow(Frame):
         Label(self.newwindowl, text='Logs per client:').grid(row=0)
         choices = tuple()
         for c in ClientHandler.clients:
-            choices = (choices, c)
+            choices = (choices, c.name)
         # self.entry_wegdek.grid(row=2, column=1, sticky=E + W)
         self.cbo_clients = Combobox(self.newwindowl, state="readonly", width=40)
         self.cbo_clients['values'] = choices
@@ -114,7 +115,7 @@ class ServerWindow(Frame):
         self.lstlogs.grid(row=3, column=0, columnspan=2, sticky=N + S + E + W)
         self.scrollbar1.grid(row=3, column=0, sticky=N + S)
 
-        self.buttonServer = Button(self.newwindowl, text="Search", command=self.start_stop_server)
+        self.buttonServer = Button(self.newwindowl, text="Search", command=self.show_logs)
         self.buttonServer.grid(row=4, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
 
     def commands_window(self):
@@ -134,5 +135,19 @@ class ServerWindow(Frame):
             i = Label(self.newwindowc, text=c)
             i.grid(row=index, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
             index+=1
+    
+    def show_logs(self):
+        user = self.cbo_clients.get()
+        for c in ClientHandler.clients:
+            if c.name == user:
+                client = c
+        filename = f"{client.name}-{client.nickname}-{client.email}.txt"
+        directory = 'c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/logs/'
+        location = os.path.join(directory, filename)
+        print(location)
+        f = open(location, "r")
+        for x in f:
+            self.lstlogs.insert(END, x.strip())
+        f.close()
     
     
