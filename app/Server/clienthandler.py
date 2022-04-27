@@ -5,7 +5,7 @@ import threading
 import pickle
 import os
 import math
-from Models.Dataset import Dataset
+from Server.Dataset import Dataset
 from Models.Location import Location
 from Models.CountryInfo import CountryInfo
 class ClientHandler(threading.Thread):

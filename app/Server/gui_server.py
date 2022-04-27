@@ -11,7 +11,7 @@ from tkinter.ttk import Combobox
 
 from Server.server import Server
 from Server.clienthandler import ClientHandler
-from Models.Dataset import Dataset
+from Server.Dataset import Dataset
 
 
 class ServerWindow(Frame):

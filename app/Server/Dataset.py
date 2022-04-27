@@ -23,8 +23,9 @@ class Dataset:
 
     def __init__(self):
         #pass
-        #print(f'path; {sys.path[0]}')
-        self.dataset = pd.read_csv('tripadvisor_european_restaurants.csv')
+        print(f'path; {sys.path[0]}')
+        
+        self.dataset = pd.read_csv('\Server\\tripadvisor_european_restaurants.csv')
         self.dataset = self.dataset.applymap(lambda s:s.lower() if type(s) == str else s)
     
     def search_by_name(self, user, name):

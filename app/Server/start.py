@@ -1,12 +1,12 @@
 import sys
 from pathlib import Path
 sys.path[0] = str(Path(sys.path[0]).parent)
-print(str(Path(sys.path[0]).parent))
+print(str(Path(sys.path[0])))
 
 import threading
 from tkinter import *
 from Server.gui_server import ServerWindow
-from Models.Dataset import Dataset
+from Server.Dataset import Dataset
 
 def callback():
     # test
