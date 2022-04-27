@@ -24,6 +24,7 @@ class ClientHandler(threading.Thread):
         self.io_stream_client = self.socket_to_client.makefile(mode='rwb')
         self.user = pickle.load(self.io_stream_client)
         self.print_bericht_gui_server(f"{self.user.nickname} connected")
+        
         self.clients.append(self.user)
 
     def run(self):

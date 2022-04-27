@@ -7,12 +7,14 @@ from queue import Queue
 from threading import Thread
 from tkinter import *
 import tkinter as tk
+from tkinter import ttk
 from tkinter.ttk import Combobox
+
+from numpy import append
 
 from Server.server import Server
 from Server.clienthandler import ClientHandler
 from Server.Dataset import Dataset
-
 
 class ServerWindow(Frame):
     def __init__(self, master=None, dataset=None):
@@ -22,7 +24,7 @@ class ServerWindow(Frame):
         self.init_window()
         self.init_messages_queue()
         self.init_server()
-
+        
     def init_server(self):
         self.server = Server(socket.gethostname(), 9999, self.messages_queue, self.dataset)
 
@@ -40,6 +42,7 @@ class ServerWindow(Frame):
             self.server.close_server_socket()
             self.messages_queue.put("CLOSE_SERVER")
     
+
     # QUEUE
     def init_messages_queue(self):
         self.messages_queue = Queue()
@@ -59,12 +62,32 @@ class ServerWindow(Frame):
         # changing the title of our master widget
         self.master.title("Server")
 
+        #Adding tabs
+        self.tabControl = ttk.Notebook(self)
+        self.logging = ttk.Frame(self.tabControl)
+        self.clients = ttk.Frame(self.tabControl)
+        self.clientlogs = ttk.Frame(self.tabControl)
+        self.commands = ttk.Frame(self.tabControl)
+        self.tabControl.add(self.logging, text='Logging window')
+        self.tabControl.add(self.clients, text='Clients')
+        self.tabControl.add(self.clientlogs, text='Client logs')
+        self.tabControl.add(self.commands, text='Command stats')
+        self.tabControl.pack(expand=1, fill=BOTH)
+
         # allowing the widget to take the full space of the root window
         self.pack(fill=BOTH, expand=1)
-
-        Label(self, text="Log-berichten server:").grid(row=0)
-        self.scrollbar = Scrollbar(self, orient=VERTICAL)
-        self.lstnumbers = Listbox(self, yscrollcommand=self.scrollbar.set)
+        
+        #Creating all tabs
+        self.logging_window()
+        self.clients_window()
+        self.client_logs_window()
+        self.commands_window()
+    
+    # Different windows
+    def logging_window(self):
+        Label(self.logging, text="Log-berichten server:").grid(row=0)
+        self.scrollbar = Scrollbar(self.logging, orient=VERTICAL)
+        self.lstnumbers = Listbox(self.logging, yscrollcommand=self.scrollbar.set)
         self.scrollbar.config(command=self.lstnumbers.yview)
 
         self.lstnumbers.grid(row=1, column=0, sticky=N + S + E + W)
@@ -72,78 +95,66 @@ class ServerWindow(Frame):
 
         self.btn_text = StringVar()
         self.btn_text.set("Start server")
-        self.buttonServer = Button(self, textvariable=self.btn_text, command=self.start_stop_server)
+        self.buttonServer = Button(self.logging, textvariable=self.btn_text, command=self.start_stop_server)
         self.buttonServer.grid(row=3, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
-        
-        self.test = Button(self, text='Clients', command=self.clients_window)
-        self.test.grid(row=4, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
-
-        self.test = Button(self, text='Logs', command=self.logs_window)
-        self.test.grid(row=5, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
-
-        self.test = Button(self, text='Commands', command=self.commands_window)
-        self.test.grid(row=6, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
          
-        Grid.rowconfigure(self, 1, weight=1)
-        Grid.columnconfigure(self, 0, weight=1)
-
+        Grid.rowconfigure(self.logging, 1, weight=1)
+        Grid.columnconfigure(self.logging, 0, weight=1)
     
     def clients_window(self):
-        self.newwindowc = Toplevel(self.master)
-        self.newwindowc.title("Online clients")
-        self.newwindowc.geometry("200x200")
-        Label(self.newwindowc, text ="Online clients:").grid(row=0)
+        Label(self.clients, text ="Online clients:").grid(row=0)
         self.show_clients()
     
-    def logs_window(self):
-        self.newwindowl = Toplevel(self.master)
-        self.newwindowl.title("Logs per client")
-        self.newwindowl.geometry("300x300")
-        Label(self.newwindowl, text='Logs per client:').grid(row=0)
-        choices = tuple()
-        for c in ClientHandler.clients:
-            choices = (choices, c.name)
-        # self.entry_wegdek.grid(row=2, column=1, sticky=E + W)
-        self.cbo_clients = Combobox(self.newwindowl, state="readonly", width=40)
-        self.cbo_clients['values'] = choices
+    def client_logs_window(self):
+        self.cbo_clients = Combobox(self.clientlogs, postcommand = self.updatecbobox, state="readonly", width=40)
         self.cbo_clients.grid(row=2, column=0, sticky=E + W)
-
-        self.scrollbar1 = Scrollbar(self.newwindowl, orient=VERTICAL)
-        self.lstlogs = Listbox(self.newwindowl, yscrollcommand=self.scrollbar1.set)
+        Label(self.clientlogs, text="Logs per client:").grid(row=0)
+        self.scrollbar1 = Scrollbar(self.clientlogs, orient=VERTICAL)
+        self.lstlogs = Listbox(self.clientlogs, yscrollcommand=self.scrollbar1.set)
         self.scrollbar1.config(command=self.lstlogs.yview)
 
-        self.lstlogs.grid(row=3, column=0, columnspan=2, sticky=N + S + E + W)
-        self.scrollbar1.grid(row=3, column=0, sticky=N + S)
+        self.lstlogs.grid(row=1, column=0, sticky=N + S + E + W)
+        self.scrollbar1.grid(row=1, column=1, sticky=N + S)
 
-        self.buttonServer = Button(self.newwindowl, text="Search", command=self.show_logs)
-        self.buttonServer.grid(row=4, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+        self.btn_text = StringVar()
+        self.btn_text.set("Search")
+        self.buttonServer = Button(self.clientlogs, textvariable=self.btn_text, command=self.show_logs)
+        self.buttonServer.grid(row=3, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
+         
+        Grid.rowconfigure(self.clientlogs, 1, weight=1)
+        Grid.columnconfigure(self.clientlogs, 0, weight=1)
+
+
 
     def commands_window(self):
-        self.newwindowcm = Toplevel(self.master)
-        self.newwindowcm.title("Commands")
-        self.newwindowcm.geometry("200x200")
-        Label(self.newwindowcm, text='Commands:').grid(row=0)
-        Label(self.newwindowcm, text=f'Searches on name: {Dataset.name_command}').grid(row=1)
-        Label(self.newwindowcm, text=f'Searches on country&region: {Dataset.country_command}').grid(row=2)
-        Label(self.newwindowcm, text=f'Searches on radius: {Dataset.radius_command}').grid(row=3)
-        Label(self.newwindowcm, text=f'Search on stats: {Dataset.stats_command}').grid(row=4)
-        Label(self.newwindowcm, text=f'Search on graphs: {Dataset.graph_command}').grid(row=5)
+        Label(self.commands, text='Commands:').grid(row=0)
+        Label(self.commands, text=f'Searches on name: {Dataset.name_command}').grid(row=1)
+        Label(self.commands, text=f'Searches on country&region: {Dataset.country_command}').grid(row=2)
+        Label(self.commands, text=f'Searches on radius: {Dataset.radius_command}').grid(row=3)
+        Label(self.commands, text=f'Search on stats: {Dataset.stats_command}').grid(row=4)
+        Label(self.commands, text=f'Search on graphs: {Dataset.graph_command}').grid(row=5)
+    
+    def updatecbobox(self):
+        choices = tuple()
+        for c in ClientHandler.clients:
+            print(c.name[0])
+            choices = choices + (c.name[0])
+        self.cbo_clients['values'] = choices
 
     def show_clients(self):
         index = 1
         for c in ClientHandler.clients:
-            i = Label(self.newwindowc, text=c)
+            i = Label(self.clients, text=c)
             i.grid(row=index, column=0, columnspan=2, pady=(5, 5), padx=(5, 5), sticky=N + S + E + W)
             index+=1
     
     def show_logs(self):
         user = self.cbo_clients.get()
+        print(user)
         for c in ClientHandler.clients:
             if c.name == user:
                 client = c
-        filename = f"{client.name}-{client.nickname}-{client.email}.txt"
-        directory = 'c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/logs/'
-        location = os.path.join(directory, filename)
+        location = os.path.join(os.path.dirname(__file__),f'../Server/logs/{client.name}-{client.nickname}-{client.email}.txt')
         print(location)
         f = open(location, "r")
         for x in f:

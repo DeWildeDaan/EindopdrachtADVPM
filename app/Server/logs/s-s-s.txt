@@ -1,0 +1,4 @@
+s (s) inquired statistics.
+s (s) generated a graph on the country belgium.
+s (s) generated a graph on the country .
+s (s) generated a graph on the country Belgium.

@@ -1,4 +1,5 @@
 from itertools import count
+from msilib.schema import Directory
 import sys
 import os
 from pathlib import Path
@@ -23,9 +24,13 @@ class Dataset:
 
     def __init__(self):
         #pass
+        # print(f'path; {sys.path[0]}')
+        # filename = "c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/Server/tripadvisor_european_restaurants.csv"
+        # self.dataset = pd.read_csv(filename)
+
         print(f'path; {sys.path[0]}')
-        
-        self.dataset = pd.read_csv('\Server\\tripadvisor_european_restaurants.csv')
+
+        self.dataset = pd.read_csv(os.path.join(os.path.dirname(__file__),'../Server/tripadvisor_european_restaurants.csv'))
         self.dataset = self.dataset.applymap(lambda s:s.lower() if type(s) == str else s)
     
     def search_by_name(self, user, name):
@@ -78,13 +83,14 @@ class Dataset:
         plt.grid()
         plt.xticks(rotation=90)
         sns.countplot(data=df, x=df['province']).set(title=f'Restaurants from {country} per province')
-        plt.savefig('c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/Server/images/graph.png', bbox_inches='tight')
+        #plt.savefig('c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/Server/images/graph.png', bbox_inches='tight')
+        plt.savefig(os.path.join(os.path.dirname(__file__),'../Server/images/graph.png'), bbox_inches='tight')
 
     def log_command(self, user, command):
-        filename = f"{user.name}-{user.nickname}-{user.email}.txt"
-        directory = 'c:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/logs/'
-        location = os.path.join(directory, filename)
-        print(location)
-        f = open(location, "a")
+        #filename = f"{user.name}-{user.nickname}-{user.email}.txt"
+        directory = os.path.join(os.path.dirname(__file__),f'../Server/logs/{user.name}-{user.nickname}-{user.email}.txt')
+        #location = os.path.join(directory, filename)
+        print(directory)
+        f = open(directory, "a")
         f.write(command)
         f.close()
