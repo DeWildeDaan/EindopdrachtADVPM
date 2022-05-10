@@ -1,4 +1,3 @@
-# https://pythonprogramming.net/python-3-tkinter-basics-tutorial/
 import imp
 import os
 import glob
@@ -21,6 +20,12 @@ from Server.Dataset import Dataset
 
 class ServerWindow(Frame):
     def __init__(self, master=None, dataset=None):
+        """
+        It creates a window, creates a queue, and creates a server.
+
+        :param master: the root window
+        :param dataset: a list of dictionaries, each dictionary contains the information of a message
+        """
         Frame.__init__(self, master)
         self.master = master
         self.dataset = dataset
@@ -29,10 +34,17 @@ class ServerWindow(Frame):
         self.init_server()
 
     def init_server(self):
+        """
+        It creates a server object, which is a thread, and starts it
+        """
         self.server = Server(socket.gethostname(), 9999,
                              self.messages_queue, self.dataset)
 
     def start_stop_server(self):
+        """
+        If the server is connected, close the server socket, otherwise initialize the server and start the
+        server thread
+        """
         if self.server.is_connected == True:
             self.server.close_server_socket()
             self.btn_text.set("Start server")
@@ -42,31 +54,38 @@ class ServerWindow(Frame):
             self.btn_text.set("Stop server")
 
     def afsluiten_server(self):
+        """
+        It closes the server socket and sends a message to the GUI to close the server
+        """
         if self.server != None:
             self.server.close_server_socket()
             self.messages_queue.put("CLOSE_SERVER")
 
-    # QUEUE
-
     def init_messages_queue(self):
+        """
+        It creates a queue and a thread that will print the messages from the queue
+        """
         self.messages_queue = Queue()
         t = Thread(target=self.print_messsages_from_queue, name="Thread-queue")
         t.start()
 
     def print_messsages_from_queue(self):
+        """
+        It gets a message from the queue, and while the message is not "CLOSE_SERVER", it inserts the
+        message into the listbox and then gets the next message from the queue
+        """
         message = self.messages_queue.get()
         while not "CLOSE_SERVER" in message:
             self.lstnumbers.insert(END, message)
             self.messages_queue.task_done()
             message = self.messages_queue.get()
 
-    # Creation of init_window
-
     def init_window(self):
-        # changing the title of our master widget
+        """
+        It creates the window and the tabs.
+        """
         self.master.title("Server")
 
-        # Adding tabs
         self.tabControl = ttk.Notebook(self)
         self.logging = ttk.Frame(self.tabControl)
         self.clients = ttk.Frame(self.tabControl)
@@ -78,17 +97,17 @@ class ServerWindow(Frame):
         self.tabControl.add(self.commands, text='Command stats')
         self.tabControl.pack(expand=1, fill=BOTH)
 
-        # allowing the widget to take the full space of the root window
         self.pack(fill=BOTH, expand=1)
 
-        # Creating all tabs
         self.logging_window()
         self.clients_window()
         self.client_logs_window()
         self.commands_window()
 
-    # Different windows
     def logging_window(self):
+        """
+        It creates a listbox and a scrollbar, and a button.
+        """
         Label(self.logging, text="Log-berichten server:").grid(row=0)
         self.scrollbar = Scrollbar(self.logging, orient=VERTICAL)
         self.lstnumbers = Listbox(
@@ -109,8 +128,9 @@ class ServerWindow(Frame):
         Grid.columnconfigure(self.logging, 0, weight=1)
 
     def clients_window(self):
-        # Label(self.clients, text="Online clients:").grid(row=0)
-        # self.show_clients()
+        """
+        It creates a window with a listbox and a button.
+        """
         Label(self.clients, text="Online clients:").grid(row=0)
         self.scrollbar = Scrollbar(self.clients, orient=VERTICAL)
         self.lstclients = Listbox(
@@ -131,6 +151,9 @@ class ServerWindow(Frame):
         Grid.columnconfigure(self.clients, 0, weight=1)
 
     def client_logs_window(self):
+        """
+        It creates a window with a combobox, a listbox, and a button.
+        """
         self.cbo_clients = Combobox(
             self.clientlogs, postcommand=self.updatecbobox, state="readonly", width=40)
         self.cbo_clients.grid(row=2, column=0, sticky=E + W)
@@ -155,6 +178,9 @@ class ServerWindow(Frame):
         self.show_clients()
 
     def commands_window(self):
+        """
+        It creates a window with a listbox and a button. The button is supposed to refresh the listbox.
+        """
         Label(self.commands, text="Command stats:").grid(row=0)
         self.scrollbar = Scrollbar(self.commands, orient=VERTICAL)
         self.lstCommands = Listbox(
@@ -176,8 +202,11 @@ class ServerWindow(Frame):
         self.show_command_stats()
 
     def updatecbobox(self):
-        files = os.listdir(
-            'C:/Users/daand/OneDrive - Hogeschool West-Vlaanderen/School/S4/Advanced Programming and Maths/EindopdrachtADVPM/app/Server/logs/')
+        """
+        It gets all the files in the directory, removes the .txt extension and adds them to the combobox.
+        """
+        location = os.path.join(os.path.dirname(__file__), f'../Server/logs/')
+        files = os.listdir(location)
         users = []
         for f in files:
             size = len(f)
@@ -186,11 +215,18 @@ class ServerWindow(Frame):
         self.cbo_clients['values'] = users
 
     def show_clients(self):
+        """
+        It deletes all the items in the listbox, then inserts all the clients in the ClientHandler.clients
+        list
+        """
         self.lstclients.delete(0, END)
         for c in ClientHandler.clients:
             self.lstclients.insert(END, c)
 
     def show_command_stats(self):
+        """
+        It reads a file, splits the first line, and then inserts the first line into a listbox.
+        """
         self.lstCommands.delete(0, END)
         location = os.path.join(os.path.dirname(
             __file__), f'../Server/commands.txt')
@@ -198,20 +234,21 @@ class ServerWindow(Frame):
         firstline = f.readline().rstrip()
         firstline = firstline.split(',')
         f.close()
-        # self.lstCommands.insert(END, f'Searches on name: {firstline[0]}')
-        # self.lstCommands.insert(
-        #     END, f'Searches on country&region: {firstline[1]}')
-        # self.lstCommands.insert(END, f'Searches on radius: {firstline[2]}')
-        # self.lstCommands.insert(END, f'Searches on stats: {firstline[3]}')
-        # self.lstCommands.insert(END, f'Searches on graphs: {firstline[4]}')
-        self.lstCommands.insert(END, f'Searches on name: {Dataset.name_command}')
+        self.lstCommands.insert(
+            END, f'Searches on name: {Dataset.name_command}')
         self.lstCommands.insert(
             END, f'Searches on country&region: {Dataset.country_command}')
-        self.lstCommands.insert(END, f'Searches on radius: {Dataset.radius_command}')
-        self.lstCommands.insert(END, f'Searches on stats: {Dataset.stats_command}')
-        self.lstCommands.insert(END, f'Searches on graphs: {Dataset.graph_command}')
+        self.lstCommands.insert(
+            END, f'Searches on radius: {Dataset.radius_command}')
+        self.lstCommands.insert(
+            END, f'Searches on stats: {Dataset.stats_command}')
+        self.lstCommands.insert(
+            END, f'Searches on graphs: {Dataset.graph_command}')
 
     def show_logs(self):
+        """
+        It opens a file, reads the file, and inserts the contents of the file into a listbox.
+        """
         self.lstlogs.delete(0, END)
         user = self.cbo_clients.get()
         location = os.path.join(os.path.dirname(

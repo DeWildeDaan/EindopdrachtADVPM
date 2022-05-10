@@ -3,20 +3,16 @@ import sys
 sys.path[0] = str(Path(sys.path[0]).parent)
 print(str(Path(sys.path[0])))
 
-from Server.Dataset import Dataset
-from Server.gui_server import ServerWindow
-from Server.server import Server
-from tkinter import *
 import threading
-
-
-
-
-
+from tkinter import *
+from Server.server import Server
+from Server.gui_server import ServerWindow
+from Server.Dataset import Dataset
 
 def callback():
-    # test
-    # threads overlopen
+    """
+    It prints the names of all active threads and then closes the server
+    """
     print("Active threads:")
     for thread in threading.enumerate():
         print(f">Thread name is {thread.getName()}.")
@@ -24,6 +20,7 @@ def callback():
     root.destroy()
 
 
+# It creates a window with a button that starts the server and initializes the dataset.
 root = Tk()
 dataset = Dataset()
 root.geometry("600x500")
