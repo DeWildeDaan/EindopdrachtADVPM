@@ -1,28 +1,25 @@
 import sys
 from pathlib import Path
 sys.path[0] = str(Path(sys.path[0]).parent)
-
-from Models.Restaurant import Restaurant
-from Models.CountryInfo import CountryInfo
-from Models.Location import Location
-from Models.User import User
-import json
-import requests
-from tkinter.ttk import Combobox
-from tkinter import messagebox
-from tkinter import *
-from tkinter import WORD
-import PIL.Image
-from PIL import ImageTk, Image
-import tkinter as tk
-import pickle
-import socket
-import logging
-from msilib.schema import ListBox
-from tabnanny import check
 from urllib import response
-
-
+from tabnanny import check
+from msilib.schema import ListBox
+import logging
+import socket
+import pickle
+import tkinter as tk
+from PIL import ImageTk, Image
+import PIL.Image
+from tkinter import WORD
+from tkinter import *
+from tkinter import messagebox
+from tkinter.ttk import Combobox
+import requests
+import json
+from Models.User import User
+from Models.Location import Location
+from Models.CountryInfo import CountryInfo
+from Models.Restaurant import Restaurant
 
 class Window(Frame):
     def __init__(self, master=None):
@@ -35,10 +32,19 @@ class Window(Frame):
         self.master = master
         self.user = None
         self.init_window()
+        self.__is_connected = False
 
         send_url = "http://api.ipstack.com/check?access_key=cdebf0737bdfa46c15cdfa66566b7223"
         geo_req = requests.get(send_url)
         self.geo_json = json.loads(geo_req.text)
+
+    @property
+    def is_connected(self):
+        """
+        It checks if the client is connected to the server.
+        :return: The is_connected method is being returned.
+        """
+        return self.__is_connected
 
     def __del__(self):
         """
@@ -69,8 +75,10 @@ class Window(Frame):
             logging.info("Open connection with server succesfully")
             pickle.dump(self.user, self.in_out_server)
             self.in_out_server.flush()
+            self.__is_connected = True
         except Exception as ex:
             logging.error(f"Foutmelding: {ex}")
+            messagebox.showinfo("Restaurants", "Something has gone wrong...")
 
     def close_connection(self):
         """
@@ -83,12 +91,13 @@ class Window(Frame):
             self.socket_to_server.close()
         except Exception as ex:
             logging.error(f"Foutmelding: {ex}")
-            messagebox.showinfo("Sommen", "Something has gone wrong...")
+            messagebox.showinfo("Restaurants", "Something has gone wrong...")
 
     def init_window(self):
         """
         It creates a window with 3 entry fields and a button.
         """
+        self.clear_frame()
         logging.debug("LOGIN WINDOW")
         self.master.title("Project ADV P&M")
         self.pack(fill=BOTH, expand=1)
@@ -150,6 +159,11 @@ class Window(Frame):
         self.buttonGraph = Button(
             self, text="Restaurants per country", command=lambda: self.graph_window())
         self.buttonGraph.grid(row=4, column=0, columnspan=3, pady=(
+            0, 10), padx=(5, 5), sticky=E + W + S)
+
+        self.buttonGraph = Button(
+            self, text="Log out", command=lambda: self.log_out())
+        self.buttonGraph.grid(row=5, column=0, columnspan=3, pady=(
             0, 10), padx=(5, 5), sticky=E + W + S)
 
     def name_window(self):
@@ -348,12 +362,22 @@ class Window(Frame):
                     check_count += 1
 
         if check_count == 3:
-            self.user = User(name, nickname, email)
+            self.user = User(name.replace(" ",""), nickname.replace(" ",""), email.replace(" ",""))
             logging.debug("User created")
-            self.command_window()
             self.make_connection_server()
+            if self.__is_connected:
+                self.command_window()
         else:
             messagebox.showerror('', warn)
+    
+    def log_out(self):
+        """
+        It sets the is_connected variable to False, closes the connection, and then calls the init_window
+        function.
+        """
+        self.__is_connected = False
+        self.close_connection()
+        self.init_window()
 
     def search_by_name(self):
         """
@@ -483,5 +507,5 @@ logging.basicConfig(level=logging.DEBUG)
 
 root = Tk()
 app = Window(root)
-root.geometry("600x200")
+root.geometry("600x220")
 root.mainloop()

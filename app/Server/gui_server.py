@@ -27,11 +27,20 @@ class ServerWindow(Frame):
         :param dataset: a list of dictionaries, each dictionary contains the information of a message
         """
         Frame.__init__(self, master)
+        self.__server_created = False
         self.master = master
         self.dataset = dataset
         self.init_window()
         self.init_messages_queue()
         self.init_server()
+    
+    @property
+    def server_created(self):
+        """
+        It returns the value of the variable __server_created.
+        :return: The server_created method is being returned.
+        """
+        return self.__server_created
 
     def init_server(self):
         """
@@ -49,8 +58,15 @@ class ServerWindow(Frame):
             self.server.close_server_socket()
             self.btn_text.set("Start server")
         else:
-            self.server.init_server()
-            self.server.start()  # thread!
+            if self.server_created == True:
+                self.lstmain.delete(0, END)
+                self.init_server()
+                self.server.init_server()
+                self.server.start()
+            if self.__server_created == False:
+                self.server.init_server()
+                self.server.start()
+                self.__server_created = True
             self.btn_text.set("Stop server")
 
     def afsluiten_server(self):
@@ -76,7 +92,7 @@ class ServerWindow(Frame):
         """
         message = self.messages_queue.get()
         while not "CLOSE_SERVER" in message:
-            self.lstnumbers.insert(END, message)
+            self.lstmain.insert(END, message)
             self.messages_queue.task_done()
             message = self.messages_queue.get()
 
@@ -110,11 +126,11 @@ class ServerWindow(Frame):
         """
         Label(self.logging, text="Log-berichten server:").grid(row=0)
         self.scrollbar = Scrollbar(self.logging, orient=VERTICAL)
-        self.lstnumbers = Listbox(
+        self.lstmain = Listbox(
             self.logging, yscrollcommand=self.scrollbar.set)
-        self.scrollbar.config(command=self.lstnumbers.yview)
+        self.scrollbar.config(command=self.lstmain.yview)
 
-        self.lstnumbers.grid(row=1, column=0, sticky=N + S + E + W)
+        self.lstmain.grid(row=1, column=0, sticky=N + S + E + W)
         self.scrollbar.grid(row=1, column=1, sticky=N + S)
 
         self.btn_text = StringVar()

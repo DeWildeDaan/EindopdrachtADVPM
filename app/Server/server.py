@@ -24,6 +24,7 @@ class Server(threading.Thread):
         """
         threading.Thread.__init__(self, name="Thread-Server")
         self.dataset = dataset
+        self.serversocket = 0
         self.__is_connected = False
         self.host = host
         self.port = port
@@ -51,8 +52,12 @@ class Server(threading.Thread):
         """
         It closes the server socket if it is not None
         """
-        if self.serversocket is not None:
-            self.serversocket.close()
+        if self.serversocket == 0:
+            pass
+        else:
+            if self.serversocket is not None:
+                self.__is_connected = False
+                self.serversocket.close()
 
     def run(self):
         """
