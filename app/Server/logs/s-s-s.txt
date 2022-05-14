@@ -15,3 +15,16 @@ s (s) performed a search by name: 9.
 s (s) performed a search by location: 51.0289192199707, 4.47806978225708.
 s (s) generated a graph on the country Belgium.
 s (s) generated a graph on the country belgium.
+s (s) performed a search by name: 4.
+s (s) performed a search by country and region: flanders in belgium.
+s (s) performed a search by location: 51.0289192199707, 4.47806978225708.
+s (s) performed a search by location: 51.0289192199707, 4.47806978225708.
+s (s) performed a search by location: 51.0289192199707, 4.47806978225708.
+s (s) performed a search by location: 51.0289192199707, 4.47806978225708.
+s (s) performed a search by location: 51.0289192199707, 4.47806978225708.
+s (s) inquired statistics.
+s (s) inquired statistics.
+s (s) generated a graph on the country belgium.
+s (s) generated a graph on the country belgium.
+s (s) generated a graph on the country belgium.
+s (s) generated a graph on the country belgium.

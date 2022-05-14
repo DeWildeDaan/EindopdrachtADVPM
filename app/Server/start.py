@@ -5,6 +5,8 @@ print(str(Path(sys.path[0])))
 
 import threading
 from tkinter import *
+from tkinter.ttk import * 
+import customtkinter
 from Server.server import Server
 from Server.gui_server import ServerWindow
 from Server.Dataset import Dataset
@@ -21,7 +23,9 @@ def callback():
 
 
 # It creates a window with a button that starts the server and initializes the dataset.
-root = Tk()
+customtkinter.set_appearance_mode("light")
+customtkinter.set_default_color_theme("blue")
+root = customtkinter.CTk()
 dataset = Dataset()
 root.geometry("600x500")
 gui_server = ServerWindow(root, dataset=dataset)

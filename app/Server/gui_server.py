@@ -10,7 +10,7 @@ from tkinter import *
 import tkinter as tk
 from tkinter import ttk
 from tkinter.ttk import Combobox
-
+import customtkinter
 from numpy import append
 
 from Server.server import Server
@@ -124,7 +124,7 @@ class ServerWindow(Frame):
         """
         It creates a listbox and a scrollbar, and a button.
         """
-        Label(self.logging, text="Log-berichten server:").grid(row=0)
+        customtkinter.CTkLabel(self.logging, text="Log-berichten server:").grid(row=0)
         self.scrollbar = Scrollbar(self.logging, orient=VERTICAL)
         self.lstmain = Listbox(
             self.logging, yscrollcommand=self.scrollbar.set)
@@ -135,7 +135,7 @@ class ServerWindow(Frame):
 
         self.btn_text = StringVar()
         self.btn_text.set("Start server")
-        self.buttonServer = Button(
+        self.buttonServer = customtkinter.CTkButton(
             self.logging, textvariable=self.btn_text, command=self.start_stop_server)
         self.buttonServer.grid(row=3, column=0, columnspan=2, pady=(
             5, 5), padx=(5, 5), sticky=N + S + E + W)
@@ -158,7 +158,7 @@ class ServerWindow(Frame):
 
         self.btn_textClients = StringVar()
         self.btn_textClients.set("Refresh")
-        self.buttonClients = Button(
+        self.buttonClients = customtkinter.CTkButton(
             self.clients, textvariable=self.btn_textClients, command=self.show_clients)
         self.buttonClients.grid(row=3, column=0, columnspan=2, pady=(
             5, 5), padx=(5, 5), sticky=N + S + E + W)
@@ -173,7 +173,7 @@ class ServerWindow(Frame):
         self.cbo_clients = Combobox(
             self.clientlogs, postcommand=self.updatecbobox, state="readonly", width=40)
         self.cbo_clients.grid(row=2, column=0, sticky=E + W)
-        Label(self.clientlogs, text="Logs per client:").grid(row=0)
+        customtkinter.CTkLabel(self.clientlogs, text="Logs per client:").grid(row=0)
         self.scrollbar1 = Scrollbar(self.clientlogs, orient=VERTICAL)
         self.lstlogs = Listbox(
             self.clientlogs, yscrollcommand=self.scrollbar1.set)
@@ -184,7 +184,7 @@ class ServerWindow(Frame):
 
         self.btn_textLogs = StringVar()
         self.btn_textLogs.set("Search")
-        self.buttonLogs = Button(
+        self.buttonLogs = customtkinter.CTkButton(
             self.clientlogs, textvariable=self.btn_textLogs, command=self.show_logs)
         self.buttonLogs.grid(row=3, column=0, columnspan=2, pady=(
             5, 5), padx=(5, 5), sticky=N + S + E + W)
@@ -197,7 +197,7 @@ class ServerWindow(Frame):
         """
         It creates a window with a listbox and a button. The button is supposed to refresh the listbox.
         """
-        Label(self.commands, text="Command stats:").grid(row=0)
+        customtkinter.CTkLabel(self.commands, text="Command stats:").grid(row=0)
         self.scrollbar = Scrollbar(self.commands, orient=VERTICAL)
         self.lstCommands = Listbox(
             self.commands, yscrollcommand=self.scrollbar.set)
@@ -208,7 +208,7 @@ class ServerWindow(Frame):
 
         self.btn_textCommands = StringVar()
         self.btn_textCommands.set("Refresh")
-        self.buttonCommands = Button(
+        self.buttonCommands = customtkinter.CTkButton(
             self.commands, textvariable=self.btn_textCommands, command=self.show_command_stats)
         self.buttonCommands.grid(row=3, column=0, columnspan=2, pady=(
             5, 5), padx=(5, 5), sticky=N + S + E + W)
